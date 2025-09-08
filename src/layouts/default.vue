@@ -30,8 +30,8 @@
 <script lang="ts" setup>
 const items = [
 	{
-		label: "Home",
-		icon: "mdi-home",
+		label: "Applications",
+		icon: "mdi-apps",
 		url: "/",
 	},
 	{
