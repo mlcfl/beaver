@@ -35,6 +35,11 @@ const items = [
 		url: "/",
 	},
 	{
+		label: "Shared modules",
+		icon: "mdi-contain",
+		url: "/shared",
+	},
+	{
 		label: "Settings",
 		icon: "mdi-cog",
 		url: "/settings",
