@@ -444,8 +444,14 @@ const installRemoteApp = (app: RemoteApp) => {
 };
 
 // Run dev server
-const runningFrontendAppId = ref<string | null | undefined>(null);
-const runningBackendAppId = ref<string | null | undefined>(null);
+const runningFrontendAppId = useLocalStorage<string | null | undefined>(
+	"runningFrontendAppId",
+	null
+);
+const runningBackendAppId = useLocalStorage<string | null | undefined>(
+	"runningBackendAppId",
+	null
+);
 
 const { mutate: runDevServer, isPending: isRunningDev } =
 	useRunDevServerMutation();
