@@ -1,6 +1,6 @@
 <template>
 	<VLayout min-height="100dvh">
-		<VAppBar :title="currentPageTitle">
+		<VAppBar elevation="0" class="border-b-thin" :title="currentPageTitle">
 			<template #prepend>
 				<VAppBarNavIcon class="d-md-none" @click="drawer = !drawer" />
 			</template>
