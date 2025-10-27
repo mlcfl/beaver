@@ -1,7 +1,11 @@
 import { createVuetify } from "vuetify";
 
 export default defineNuxtPlugin((app) => {
-  const vuetify = createVuetify();
+	const vuetify = createVuetify({
+		display: {
+			mobileBreakpoint: "md",
+		},
+	});
 
-  app.vueApp.use(vuetify);
+	app.vueApp.use(vuetify);
 });
