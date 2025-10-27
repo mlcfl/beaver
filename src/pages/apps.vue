@@ -116,6 +116,13 @@
 			<VBtn
 				variant="outlined"
 				:disabled="!selected.length"
+				:loading="isBuilding"
+				@click="build"
+				>Build</VBtn
+			>
+			<VBtn
+				variant="outlined"
+				:disabled="!selected.length"
 				:loading="isInstalling"
 				@click="updateDeps"
 				>Install dependencies</VBtn
@@ -204,6 +211,7 @@ import {
 	useRemoteAppInstall,
 	useRunDevServerMutation,
 	useStopDevServerMutation,
+	useAppsBuildMutation,
 } from "~/mutations";
 import type { RemoteApp } from "~~/server/api/github/repos";
 
@@ -503,5 +511,23 @@ const stopDev = (part: "frontend" | "backend") => {
 			{ onSuccess, onError }
 		);
 	}
+};
+
+// Build applications
+const { mutate: buildApps, isPending: isBuilding } = useAppsBuildMutation();
+const build = () => {
+	buildApps(selected.value, {
+		onSuccess: () => {
+			selected.value = [];
+			snackbar.text = "Build completed";
+			snackbar.color = "success";
+			snackbar.show = true;
+		},
+		onError: () => {
+			snackbar.text = "Build error. Check server logs.";
+			snackbar.color = "error";
+			snackbar.show = true;
+		},
+	});
 };
 </script>
