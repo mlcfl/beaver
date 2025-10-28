@@ -6,4 +6,5 @@ export * from "./useFixSharedMutation";
 export * from "./useFixAppsMutation";
 export * from "./useRemoteAppInstall";
 export * from "./useRunDevServerMutation";
+export * from "./useSharedBuildMutation";
 export * from "./useStopDevServerMutation";
