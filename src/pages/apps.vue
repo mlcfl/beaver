@@ -83,10 +83,11 @@
 			ones.
 		</p>
 		<VSheet class="mb-4 d-flex justify-end ga-3 flex-wrap">
+			<ActionPatch />
 			<VBtn
 				v-if="!runningBackendAppId"
 				variant="outlined"
-				:disabled="selected.length !== 1"
+				:disabled="store.selectedApps.length !== 1"
 				:loading="isRunningDev"
 				@click="runDev('backend')"
 				>Run backend (Dev)</VBtn
@@ -101,7 +102,7 @@
 			<VBtn
 				v-if="!runningFrontendAppId"
 				variant="outlined"
-				:disabled="selected.length !== 1"
+				:disabled="store.selectedApps.length !== 1"
 				:loading="isRunningDev"
 				@click="runDev('frontend')"
 				>Run frontend (Dev)</VBtn
@@ -115,28 +116,28 @@
 			>
 			<VBtn
 				variant="outlined"
-				:disabled="!selected.length"
+				:disabled="!store.selectedApps.length"
 				:loading="isBuilding"
 				@click="build"
 				>Build</VBtn
 			>
 			<VBtn
 				variant="outlined"
-				:disabled="!selected.length"
+				:disabled="!store.selectedApps.length"
 				:loading="isInstalling"
 				@click="updateDeps"
 				>Install dependencies</VBtn
 			>
 			<VBtn
 				variant="outlined"
-				:disabled="!selected.length"
+				:disabled="!store.selectedApps.length"
 				:loading="isLinking"
 				@click="updateLinking"
 				>Link shared modules</VBtn
 			>
 		</VSheet>
 		<VDataTable
-			v-model="selected"
+			v-model="store.selectedApps"
 			:items="data"
 			show-select
 			item-value="id"
@@ -195,9 +196,9 @@
 		</VDataTable>
 
 		<VSnackbar
-			v-model="snackbar.show"
-			:text="snackbar.text"
-			:color="snackbar.color"
+			v-model="store.snackbar.show"
+			:text="store.snackbar.text"
+			:color="store.snackbar.color"
 			:timeout="3000"
 		/>
 	</VSheet>
@@ -214,10 +215,13 @@ import {
 	useAppsBuildMutation,
 } from "~/mutations";
 import type { RemoteApp } from "~~/server/api/github/repos";
+import ActionPatch from "~/containers/apps/components/ActionPatch.vue";
+import { useAppsStore } from "~/containers/apps/useAppsStore";
 
+const store = useAppsStore();
 const styles = useCssModule();
 const { data, isPending } = useAppsQuery();
-const selected = ref<string[]>([]);
+
 const headers = [
 	{
 		key: "actions",
@@ -346,28 +350,17 @@ const headers = [
 	},
 ] as const;
 
-// Snackbar
-const snackbar = reactive({
-	show: false,
-	text: "",
-	color: "info",
-});
-
 // Install dependencies
 const { mutate: installDeps, isPending: isInstalling } =
 	useAppsInstallMutation();
 const updateDeps = () => {
-	installDeps(selected.value, {
+	installDeps(store.selectedApps, {
 		onSuccess: () => {
-			selected.value = [];
-			snackbar.text = "Installation completed";
-			snackbar.color = "success";
-			snackbar.show = true;
+			store.selectedApps = [];
+			store.showSuccessSnackbar("Installation completed");
 		},
 		onError: () => {
-			snackbar.text = "Installation error. Check server logs.";
-			snackbar.color = "error";
-			snackbar.show = true;
+			store.showErrorSnackbar("Installation error. Check server logs.");
 		},
 	});
 };
@@ -375,17 +368,13 @@ const updateDeps = () => {
 // Link application parts
 const { mutate: linkApps, isPending: isLinking } = useAppsLinkingMutation();
 const updateLinking = () => {
-	linkApps(selected.value, {
+	linkApps(store.selectedApps, {
 		onSuccess: () => {
-			selected.value = [];
-			snackbar.text = "Linking completed";
-			snackbar.color = "success";
-			snackbar.show = true;
+			store.selectedApps = [];
+			store.showSuccessSnackbar("Linking completed");
 		},
 		onError: () => {
-			snackbar.text = "Linking error. Check server logs.";
-			snackbar.color = "error";
-			snackbar.show = true;
+			store.showErrorSnackbar("Linking error. Check server logs.");
 		},
 	});
 };
@@ -429,15 +418,11 @@ const installRemoteApp = (app: RemoteApp) => {
 
 	installRemote(app, {
 		onSuccess: () => {
-			snackbar.text = `Installation completed for "${app.appId}"`;
-			snackbar.color = "success";
-			snackbar.show = true;
+			store.showSuccessSnackbar(`Installation completed for "${app.appId}"`);
 			remoteAppInstalling.value = null;
 		},
 		onError: () => {
-			snackbar.text = "Installation error. Check server logs.";
-			snackbar.color = "error";
-			snackbar.show = true;
+			store.showErrorSnackbar("Installation error. Check server logs.");
 			remoteAppInstalling.value = null;
 		},
 	});
@@ -457,27 +442,25 @@ const { mutate: runDevServer, isPending: isRunningDev } =
 	useRunDevServerMutation();
 const runDev = (part: "frontend" | "backend") => {
 	runDevServer(
-		{ apps: selected.value, part },
+		{ apps: store.selectedApps, part },
 		{
 			onSuccess: ({ port }) => {
 				if (part === "frontend") {
-					runningFrontendAppId.value = selected.value[0];
+					runningFrontendAppId.value = store.selectedApps[0];
 				} else {
-					runningBackendAppId.value = selected.value[0];
+					runningBackendAppId.value = store.selectedApps[0];
 				}
 
-				selected.value = [];
+				store.selectedApps = [];
 
 				const firstLetter = part.charAt(0).toUpperCase();
 				const rest = part.slice(1);
-				snackbar.text = `${firstLetter}${rest} started on port ${port}`;
-				snackbar.color = "success";
-				snackbar.show = true;
+				store.showSuccessSnackbar(
+					`${firstLetter}${rest} started on port ${port}`
+				);
 			},
 			onError: () => {
-				snackbar.text = `Error starting ${part}. Check server logs.`;
-				snackbar.color = "error";
-				snackbar.show = true;
+				store.showErrorSnackbar(`Error starting ${part}. Check server logs.`);
 			},
 		}
 	);
@@ -496,14 +479,10 @@ const stopDev = (part: "frontend" | "backend") => {
 
 		const firstLetter = part.charAt(0).toUpperCase();
 		const rest = part.slice(1);
-		snackbar.text = `${firstLetter}${rest} stopped successfully`;
-		snackbar.color = "success";
-		snackbar.show = true;
+		store.showSuccessSnackbar(`${firstLetter}${rest} stopped successfully`);
 	};
 	const onError = () => {
-		snackbar.text = `Error stopping ${part}. Check server logs.`;
-		snackbar.color = "error";
-		snackbar.show = true;
+		store.showErrorSnackbar(`Error stopping ${part}. Check server logs.`);
 	};
 
 	if (part === "frontend" && runningFrontendAppId.value) {
@@ -522,17 +501,13 @@ const stopDev = (part: "frontend" | "backend") => {
 // Build applications
 const { mutate: buildApps, isPending: isBuilding } = useAppsBuildMutation();
 const build = () => {
-	buildApps(selected.value, {
+	buildApps(store.selectedApps, {
 		onSuccess: () => {
-			selected.value = [];
-			snackbar.text = "Build completed";
-			snackbar.color = "success";
-			snackbar.show = true;
+			store.selectedApps = [];
+			store.showSuccessSnackbar("Build completed");
 		},
 		onError: () => {
-			snackbar.text = "Build error. Check server logs.";
-			snackbar.color = "error";
-			snackbar.show = true;
+			store.showErrorSnackbar("Build error. Check server logs.");
 		},
 	});
 };

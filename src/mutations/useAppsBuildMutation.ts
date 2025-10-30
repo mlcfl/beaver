@@ -1,18 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/vue-query";
+import { Api } from "~/api";
 
 export const useAppsBuildMutation = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
-		mutationFn(selectedApps: string[]) {
-			return $fetch("/api/apps/build", {
-				method: "POST",
-				headers: {
-					"X-Requested-With": "XMLHttpRequest",
-				},
-				body: selectedApps,
-			});
-		},
+		mutationFn: (selectedApps: string[]) =>
+			Api.post("/apps/build", { body: selectedApps }),
 		onSuccess() {
 			queryClient.invalidateQueries({ queryKey: ["apps"] });
 		},

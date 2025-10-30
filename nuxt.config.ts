@@ -40,6 +40,7 @@ export default defineNuxtConfig({
 	],
 	modules: [
 		"@nuxt/eslint",
+		"@pinia/nuxt",
 		"@vueuse/nuxt",
 		(_options, nuxt) => {
 			nuxt.hooks.hook("vite:extendConfig", (config) => {

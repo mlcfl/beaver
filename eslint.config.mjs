@@ -19,5 +19,6 @@ export default withNuxt({
 		],
 		"vue/v-slot-style": "off",
 		"vue/valid-v-slot": "off",
+		"@typescript-eslint/no-extraneous-class": "off",
 	},
 });
