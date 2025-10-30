@@ -1,4 +1,4 @@
-import { mkdir, access } from "node:fs/promises";
+import { mkdir, access, copyFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { cwd } from "node:process";
 import { join } from "node:path";
@@ -36,8 +36,16 @@ export default defineEventHandler(async (event): Promise<void> => {
 		await $({
 			cwd: join(rootAppPath, `${appId}-backend`),
 		})`pnpm install --frozen-lockfile`;
-		// Add .env file
-		// ...
+		// Add .env files for development and production
+		const rootAppPartPath = join(rootAppPath, `${appId}-backend`);
+		await copyFile(
+			join(rootAppPartPath, ".env.example"),
+			join(rootAppPartPath, ".env.development")
+		);
+		await copyFile(
+			join(rootAppPartPath, ".env.example"),
+			join(rootAppPartPath, ".env.production")
+		);
 	}
 
 	// Install frontend
@@ -46,7 +54,15 @@ export default defineEventHandler(async (event): Promise<void> => {
 		await $({
 			cwd: join(rootAppPath, `${appId}-frontend`),
 		})`pnpm install --frozen-lockfile`;
-		// Add .env file
-		// ...
+		// Add .env files for development and production
+		const rootAppPartPath = join(rootAppPath, `${appId}-frontend`);
+		await copyFile(
+			join(rootAppPartPath, ".env.example"),
+			join(rootAppPartPath, ".env.development")
+		);
+		await copyFile(
+			join(rootAppPartPath, ".env.example"),
+			join(rootAppPartPath, ".env.production")
+		);
 	}
 });
