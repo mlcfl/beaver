@@ -84,6 +84,7 @@
 		</p>
 		<VSheet class="mb-4 d-flex justify-end ga-3 flex-wrap">
 			<ActionPatch />
+			<ActionBuild />
 			<VBtn
 				v-if="!runningBackendAppId"
 				variant="outlined"
@@ -113,13 +114,6 @@
 				:loading="isStoppingDev"
 				@click="stopDev('frontend')"
 				>Stop frontend (Dev)</VBtn
-			>
-			<VBtn
-				variant="outlined"
-				:disabled="!store.selectedApps.length"
-				:loading="isBuilding"
-				@click="build"
-				>Build</VBtn
 			>
 			<VBtn
 				variant="outlined"
@@ -212,10 +206,9 @@ import {
 	useRemoteAppInstall,
 	useRunDevServerMutation,
 	useStopDevServerMutation,
-	useAppsBuildMutation,
 } from "~/mutations";
 import type { RemoteApp } from "~~/server/api/github/repos";
-import ActionPatch from "~/containers/apps/components/ActionPatch.vue";
+import { ActionPatch, ActionBuild } from "~/containers/apps/components";
 import { useAppsStore } from "~/containers/apps/useAppsStore";
 
 const store = useAppsStore();
@@ -496,19 +489,5 @@ const stopDev = (part: "frontend" | "backend") => {
 			{ onSuccess, onError }
 		);
 	}
-};
-
-// Build applications
-const { mutate: buildApps, isPending: isBuilding } = useAppsBuildMutation();
-const build = () => {
-	buildApps(store.selectedApps, {
-		onSuccess: () => {
-			store.selectedApps = [];
-			store.showSuccessSnackbar("Build completed");
-		},
-		onError: () => {
-			store.showErrorSnackbar("Build error. Check server logs.");
-		},
-	});
 };
 </script>

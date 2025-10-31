@@ -4,17 +4,23 @@ import { cwd } from "node:process";
 import { join } from "node:path";
 import { $ } from "execa";
 
+type Body = {
+	apps: string[];
+	part: "all" | "shared" | "frontend" | "backend";
+};
+
 /**
- * Build all parts of the selected applications
+ * Build applications. All parts or specific part
  */
 export default defineEventHandler(async (event) => {
-	const selectedApps = await readBody<string[]>(event);
+	const { apps, part } = await readBody<Body>(event);
 	const rootPath = join(cwd(), "../");
 	const appsPath = join(rootPath, "/apps");
-	const applicationParts = ["shared", "frontend", "backend"] as const;
+	const partsToBuild =
+		part === "all" ? ["shared", "frontend", "backend"] : [part];
 
-	for (const appId of selectedApps) {
-		for (const part of applicationParts) {
+	for (const appId of apps) {
+		for (const part of partsToBuild) {
 			try {
 				const partRoot = join(appsPath, appId, `${appId}-${part}`);
 
