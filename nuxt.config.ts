@@ -1,23 +1,12 @@
 import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
-// Init render mode based on env
-const mode = process.env.RENDER_MODE ?? "CSR";
 const port = process.env.PORT ?? 7000;
-const ssrEnabled = () => {
-	return ["SSR", "SSG"].includes(mode);
-};
-const getNitroPreset = () => {
-	return {
-		CSR: "static",
-		SSR: "node-listener",
-		SSG: "static",
-	}[mode];
-};
 
 export default defineNuxtConfig({
-	ssr: ssrEnabled(),
+	ssr: false,
 	nitro: {
-		preset: getNitroPreset(),
+		// Support API routes and preview
+		preset: "node-server",
 		// Important enable this to avoid MODULE_NOT_FOUND error from the server side
 		noExternals: true,
 		// Optional
