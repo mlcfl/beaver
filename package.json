@@ -8,7 +8,7 @@
 	"scripts": {
 		"build": "nuxt build",
 		"dev": "nuxt dev",
-		"start": "nuxt preview",
+		"start": "nuxt preview --port 7000",
 		"postinstall": "nuxt prepare",
 		"lint": "eslint .",
 		"lint:fix": "eslint . --fix"
