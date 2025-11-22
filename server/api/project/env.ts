@@ -52,7 +52,7 @@ export default defineEventHandler(async (): Promise<EnvCheckResponse> => {
 	response.pnpm.value = pnpmVersion;
 
 	// git
-	const { stdout: gitVersion } = await $`git -v`.catch(() => {
+	const { stdout: gitVersion } = await $`git --version`.catch(() => {
 		response.git.error = "git is not installed or not added to PATH";
 		return { stdout: "" };
 	});
