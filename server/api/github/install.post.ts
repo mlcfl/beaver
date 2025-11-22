@@ -33,9 +33,7 @@ export default defineEventHandler(async (event): Promise<void> => {
 	// Install backend
 	if (backend) {
 		await $({ cwd: rootAppPath })`git clone ${backend} ${appId}-backend`;
-		await $({
-			cwd: join(rootAppPath, `${appId}-backend`),
-		})`pnpm install --frozen-lockfile`;
+
 		// Add .env files for development and production
 		const rootAppPartPath = join(rootAppPath, `${appId}-backend`);
 		await copyFile(
@@ -46,14 +44,17 @@ export default defineEventHandler(async (event): Promise<void> => {
 			join(rootAppPartPath, ".env.example"),
 			join(rootAppPartPath, ".env.production")
 		);
+
+		// Install deps
+		await $({
+			cwd: join(rootAppPath, `${appId}-backend`),
+		})`pnpm install --frozen-lockfile`;
 	}
 
 	// Install frontend
 	if (frontend) {
 		await $({ cwd: rootAppPath })`git clone ${frontend} ${appId}-frontend`;
-		await $({
-			cwd: join(rootAppPath, `${appId}-frontend`),
-		})`pnpm install --frozen-lockfile`;
+
 		// Add .env files for development and production
 		const rootAppPartPath = join(rootAppPath, `${appId}-frontend`);
 		await copyFile(
@@ -64,5 +65,10 @@ export default defineEventHandler(async (event): Promise<void> => {
 			join(rootAppPartPath, ".env.example"),
 			join(rootAppPartPath, ".env.production")
 		);
+
+		// Install deps
+		await $({
+			cwd: join(rootAppPath, `${appId}-frontend`),
+		})`pnpm install --frozen-lockfile`;
 	}
 });
