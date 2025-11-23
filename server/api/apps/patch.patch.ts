@@ -1,4 +1,4 @@
-import { access, cp } from "node:fs/promises";
+import { access, cp, rename, glob } from "node:fs/promises";
 import { constants } from "node:fs";
 import { cwd } from "node:process";
 import { join } from "node:path";
@@ -6,6 +6,18 @@ import { join } from "node:path";
 type Body = {
 	apps: string[];
 	part: "all" | "shared" | "frontend" | "backend";
+};
+
+/**
+ * Find and rename .ts.txt files to .ts
+ */
+const renameTsTxtFiles = async (dir: string): Promise<void> => {
+	const pattern = join(dir, "**/*.ts.txt");
+
+	for await (const file of glob(pattern)) {
+		const newPath = file.slice(0, -4);
+		await rename(file, newPath);
+	}
 };
 
 /**
@@ -33,6 +45,9 @@ export default defineEventHandler(async (event) => {
 					recursive: true,
 					force: true,
 				});
+
+				// Rename .ts.txt files to .ts
+				await renameTsTxtFiles(appPartPath);
 			} catch {
 				continue;
 			}
