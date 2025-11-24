@@ -1,4 +1,4 @@
-import { mkdir, access, copyFile } from "node:fs/promises";
+import { mkdir, access, copyFile, readFile, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { cwd } from "node:process";
 import { join } from "node:path";
@@ -45,6 +45,13 @@ export default defineEventHandler(async (event): Promise<void> => {
 			join(rootAppPartPath, ".env.production")
 		);
 
+		// Modify .env.production to set some values
+		const envProductionPath = join(rootAppPartPath, ".env.production");
+		let envContent = await readFile(envProductionPath, "utf-8");
+		envContent = envContent.replace(/CORS_ENABLED=.*/g, "CORS_ENABLED=false");
+		envContent = envContent.replace(/CORS_ORIGIN=.*/g, "CORS_ORIGIN=");
+		await writeFile(envProductionPath, envContent, "utf-8");
+
 		// Install deps
 		await $({
 			cwd: join(rootAppPath, `${appId}-backend`),
@@ -65,6 +72,20 @@ export default defineEventHandler(async (event): Promise<void> => {
 			join(rootAppPartPath, ".env.example"),
 			join(rootAppPartPath, ".env.production")
 		);
+
+		// Modify .env.production to set empty values for API base URLs
+		// For work on the same domain at the backend and for usage with entry-server
+		const envProductionPath = join(rootAppPartPath, ".env.production");
+		let envContent = await readFile(envProductionPath, "utf-8");
+		envContent = envContent.replace(
+			/NUXT_PUBLIC_API_BASE=.*/g,
+			"NUXT_PUBLIC_API_BASE="
+		);
+		envContent = envContent.replace(
+			/NUXT_PUBLIC_AUTH_API_BASE=.*/g,
+			"NUXT_PUBLIC_AUTH_API_BASE="
+		);
+		await writeFile(envProductionPath, envContent, "utf-8");
 
 		// Install deps
 		await $({

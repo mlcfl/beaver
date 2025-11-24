@@ -1,5 +1,6 @@
 export * from "./useAppsInstallMutation";
 export * from "./useAppsLinkingMutation";
+export * from "./useEntryServerBuildMutation";
 export * from "./useFixEntryServerMutation";
 export * from "./useFixSharedMutation";
 export * from "./useFixAppsMutation";

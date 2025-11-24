@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
 	const selectedApps = await readBody<string[]>(event);
 	const rootPath = join(cwd(), "../");
 	const appsPath = join(rootPath, "/apps");
-	const applicationParts = ["shared", "backend", "frontend"] as const;
+	const applicationParts = ["shared", "frontend", "backend"] as const;
 
 	for (const appId of selectedApps) {
 		for (const part of applicationParts) {

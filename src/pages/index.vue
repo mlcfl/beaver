@@ -1,5 +1,6 @@
 <template>
 	<VSheet>
+		<OneClickSetup class="mb-8" />
 		<h2>Environment</h2>
 		<VList v-if="envSuccess">
 			<VListItem title="Node.js installed" :subtitle="env?.node.value">
@@ -113,6 +114,7 @@ import {
 	useFixSharedMutation,
 	useFixEntryServerMutation,
 } from "~/mutations";
+import { OneClickSetup } from "~/containers/project/components";
 
 const { data: structure, isSuccess: structureSuccess } =
 	useProjectStructureQuery();
