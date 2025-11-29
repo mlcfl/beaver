@@ -1,15 +1,15 @@
 import { access } from "node:fs/promises";
 import { constants } from "node:fs";
-import { cwd } from "node:process";
 import { join } from "node:path";
 import { $ } from "execa";
+import { getRootPath } from "../../utils";
 
 /**
  * Install dependencies for selected apps
  */
 export default defineEventHandler(async (event) => {
 	const selectedApps = await readBody<string[]>(event);
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const appsPath = join(rootPath, "/apps");
 	const applicationParts = ["shared", "frontend", "backend"] as const;
 

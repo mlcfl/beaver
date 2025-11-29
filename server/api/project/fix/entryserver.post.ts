@@ -1,13 +1,13 @@
-import { cwd } from "node:process";
 import { join } from "node:path";
 import { copyFile } from "node:fs/promises";
 import { $ } from "execa";
+import { getRootPath } from "../../../utils";
 
 /**
  * Clones "entry-server" from GitHub and install it
  */
 export default defineEventHandler(async (): Promise<void> => {
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 
 	// Clone from GitHub
 	await $({

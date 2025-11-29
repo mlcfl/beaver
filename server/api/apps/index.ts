@@ -1,7 +1,7 @@
 import { readdir } from "node:fs/promises";
 import { accessSync, constants, readFileSync } from "node:fs";
-import { cwd } from "node:process";
 import { join } from "node:path";
+import { getRootPath } from "../../utils";
 
 export interface AppItem {
 	id: string;
@@ -43,7 +43,7 @@ const checkNodeModules = (path: string) => {
  * @returns List of applications
  */
 export default defineEventHandler<Promise<AppsList>>(async () => {
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const appsPath = join(rootPath, "/apps");
 	const files = await readdir(appsPath, { withFileTypes: true });
 

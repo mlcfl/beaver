@@ -1,8 +1,8 @@
 import { mkdir, access, copyFile, readFile, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
-import { cwd } from "node:process";
 import { join } from "node:path";
 import { $ } from "execa";
+import { getRootPath } from "../../utils";
 import type { RemoteApp } from "./repos";
 
 /**
@@ -10,7 +10,7 @@ import type { RemoteApp } from "./repos";
  */
 export default defineEventHandler(async (event): Promise<void> => {
 	const { appId, shared, backend, frontend } = await readBody<RemoteApp>(event);
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const appsPath = join(rootPath, "/apps");
 
 	// Create root directory if it doesn't exist

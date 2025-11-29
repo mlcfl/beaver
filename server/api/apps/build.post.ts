@@ -1,8 +1,8 @@
 import { access } from "node:fs/promises";
 import { constants } from "node:fs";
-import { cwd } from "node:process";
 import { join } from "node:path";
 import { $ } from "execa";
+import { getRootPath } from "../../utils";
 
 type Body = {
 	apps: string[];
@@ -14,7 +14,7 @@ type Body = {
  */
 export default defineEventHandler(async (event) => {
 	const { apps, part } = await readBody<Body>(event);
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const appsPath = join(rootPath, "/apps");
 	const partsToBuild =
 		part === "all" ? ["shared", "frontend", "backend"] : [part];

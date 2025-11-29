@@ -1,7 +1,7 @@
 import { access, cp, rename, glob } from "node:fs/promises";
 import { constants } from "node:fs";
-import { cwd } from "node:process";
 import { join } from "node:path";
+import { getRootPath } from "../../utils";
 
 type Body = {
 	apps: string[];
@@ -26,9 +26,9 @@ const renameTsTxtFiles = async (dir: string): Promise<void> => {
  */
 export default defineEventHandler(async (event) => {
 	const { apps, part } = await readBody<Body>(event);
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const appsPath = join(rootPath, "/apps");
-	const templatesPath = join(cwd(), "/templates/apps");
+	const templatesPath = join(rootPath, "/templates/apps");
 	const partsToPatch =
 		part === "all" ? ["shared", "frontend", "backend"] : [part];
 

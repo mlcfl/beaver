@@ -1,7 +1,7 @@
 import { access } from "node:fs/promises";
-import { cwd } from "node:process";
 import { join, basename } from "node:path";
 import { constants } from "node:fs";
+import { getRootPath } from "../../utils";
 
 export interface StructureCheckResponse {
 	projectName: {
@@ -36,7 +36,7 @@ export default defineEventHandler(async (): Promise<StructureCheckResponse> => {
 
 	// Check root dir name
 	const projectName = "mlc";
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const rootDirName = basename(rootPath);
 
 	response.projectName = {

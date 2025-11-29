@@ -19,13 +19,9 @@ Create a directory named `mlc` on your computer. Clone this repository into it, 
 pnpm install --frozen-lockfile
 ```
 
-If you encounter an error with `--frozen-lockfile`, run:
+> If you encounter an error with `--frozen-lockfile`, run `pnpm install`.
 
-```bash
-pnpm install
-```
-
-2. Build the project:
+2. Build the builder:
 
 ```bash
 pnpm build
@@ -37,11 +33,13 @@ pnpm build
 pnpm start
 ```
 
-For development mode, use:
+> For development mode, use `pnpm dev`.
 
-```bash
-pnpm dev
-```
+4. Open [localhost:7000](http://localhost:7000) in your browser.
+
+5. Click the "One-click setup from scratch" button for easy installation and project setup.
+
+6. After the project is installed and set up, go to the entry-server directory and run the command `pnpm start` to launch it. Use this command in the future to run the project.
 
 ## Scripts
 

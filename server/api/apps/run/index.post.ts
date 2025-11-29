@@ -1,7 +1,8 @@
-import { cwd, platform } from "node:process";
+import { platform } from "node:process";
 import { join } from "node:path";
 import { spawn } from "node:child_process";
 import { execa } from "execa";
+import { getRootPath } from "../../../utils";
 
 /**
  * Run frontend or backend for selected apps
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
 		});
 	}
 
-	const rootPath = join(cwd(), "../");
+	const rootPath = getRootPath();
 	const appsPath = join(rootPath, "/apps");
 	const frontendPath = join(
 		appsPath,
