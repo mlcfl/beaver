@@ -5,6 +5,7 @@ export * from "./useFixEntryServerMutation";
 export * from "./useFixSharedMutation";
 export * from "./useFixAppsMutation";
 export * from "./useJwtCreateMutation";
+export * from "./usePepperCreateMutation";
 export * from "./useRemoteAppInstall";
 export * from "./useRunDevServerMutation";
 export * from "./useSharedBuildMutation";

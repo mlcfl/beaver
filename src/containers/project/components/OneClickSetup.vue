@@ -90,6 +90,7 @@ import {
 	useEntryServerBuildMutation,
 	useRemoteAppInstall,
 	useJwtCreateMutation,
+	usePepperCreateMutation,
 } from "~/mutations";
 import { useBuildMutation } from "~/containers/apps/mutations";
 
@@ -114,6 +115,7 @@ const { data: remoteApps, refetch: getRemoteApps } = useRemoteAppsQuery();
 const { mutateAsync: installApp } = useRemoteAppInstall();
 const { mutateAsync: buildApp } = useBuildMutation();
 const { mutateAsync: createJwtKeys } = useJwtCreateMutation();
+const { mutateAsync: createPepperKey } = usePepperCreateMutation();
 
 // Auto scroll to bottom in output console
 const scrollToBottom = async () => {
@@ -206,6 +208,15 @@ const handleOneClickSetup = async () => {
 		w("\nCreating JWT private and public keys...");
 		await createJwtKeys(appsArray.map(({ appId }) => appId));
 		w("JWT keys created and saved in appropriate directories");
+
+		/**
+		 * 5. Create pepper key, save it in /auth-backend and /entry-server
+		 */
+		w("\nCreating pepper key...");
+		await createPepperKey();
+		w(
+			"Pepper key created, saved in /auth-backend and /entry-server .env files"
+		);
 
 		// Final success message
 		w(" ")
