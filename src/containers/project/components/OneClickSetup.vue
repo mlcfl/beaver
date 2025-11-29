@@ -89,6 +89,7 @@ import {
 	useSharedBuildMutation,
 	useEntryServerBuildMutation,
 	useRemoteAppInstall,
+	useJwtCreateMutation,
 } from "~/mutations";
 import { useBuildMutation } from "~/containers/apps/mutations";
 
@@ -112,6 +113,7 @@ const { mutateAsync: buildEntryServer } = useEntryServerBuildMutation();
 const { data: remoteApps, refetch: getRemoteApps } = useRemoteAppsQuery();
 const { mutateAsync: installApp } = useRemoteAppInstall();
 const { mutateAsync: buildApp } = useBuildMutation();
+const { mutateAsync: createJwtKeys } = useJwtCreateMutation();
 
 // Auto scroll to bottom in output console
 const scrollToBottom = async () => {
@@ -197,6 +199,13 @@ const handleOneClickSetup = async () => {
 			.push("Building entry server module...");
 		await buildEntryServer();
 		w("/entry-server module built");
+
+		/**
+		 * 4. Create JWT keys, save them in each /[app]-backend and in /entry-server
+		 */
+		w("\nCreating JWT private and public keys...");
+		await createJwtKeys(appsArray.map(({ appId }) => appId));
+		w("JWT keys created and saved in appropriate directories");
 
 		// Final success message
 		w(" ")
