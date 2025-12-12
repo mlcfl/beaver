@@ -88,6 +88,7 @@ import {
 	useFixEntryServerMutation,
 	useSharedBuildMutation,
 	useEntryServerBuildMutation,
+	useEntryServerConfigMutation,
 	useRemoteAppInstall,
 	useJwtCreateMutation,
 	usePepperCreateMutation,
@@ -111,6 +112,7 @@ const { mutateAsync: cloneSharedDir } = useFixSharedMutation();
 const { mutateAsync: cloneEntryServerDir } = useFixEntryServerMutation();
 const { mutateAsync: buildSharedDir } = useSharedBuildMutation();
 const { mutateAsync: buildEntryServer } = useEntryServerBuildMutation();
+const { mutateAsync: configureEntryServer } = useEntryServerConfigMutation();
 const { data: remoteApps, refetch: getRemoteApps } = useRemoteAppsQuery();
 const { mutateAsync: installApp } = useRemoteAppInstall();
 const { mutateAsync: buildApp } = useBuildMutation();
@@ -199,6 +201,8 @@ const handleOneClickSetup = async () => {
 			.push(".env files created based on .env.example")
 			.push("Dependencies installed for /entry-server repository")
 			.push("Building entry server module...");
+		await configureEntryServer();
+		w("Applications configuration created in /entry-server");
 		await buildEntryServer();
 		w("/entry-server module built");
 
