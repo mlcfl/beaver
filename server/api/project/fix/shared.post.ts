@@ -18,27 +18,18 @@ export default defineEventHandler(async (): Promise<void> => {
 		await mkdir(sharedPath);
 	}
 
-	// Clone and install shared-all
+	// Clone shared-all
 	await $({
 		cwd: sharedPath,
 	})`git clone https://github.com/mlcfl/shared-all.git`;
-	await $({
-		cwd: join(sharedPath, "shared-all"),
-	})`pnpm install --frozen-lockfile`;
 
-	// Clone and install shared-backend
+	// Clone shared-backend
 	await $({
 		cwd: sharedPath,
 	})`git clone https://github.com/mlcfl/shared-backend.git`;
-	await $({
-		cwd: join(sharedPath, "shared-backend"),
-	})`pnpm install --frozen-lockfile`;
 
-	// Clone and install shared-frontend
+	// Clone shared-frontend
 	await $({
 		cwd: sharedPath,
 	})`git clone https://github.com/mlcfl/shared-frontend.git`;
-	await $({
-		cwd: join(sharedPath, "shared-frontend"),
-	})`pnpm install --frozen-lockfile`;
 });

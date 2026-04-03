@@ -21,16 +21,13 @@ export default defineEventHandler(async (event): Promise<void> => {
 		await mkdir(rootAppPath);
 	}
 
-	// Install shared
+	// Clone shared
 	if (shared) {
 		await $({ cwd: rootAppPath })`git clone ${shared} ${appId}-shared`;
-		await $({
-			cwd: join(rootAppPath, `${appId}-shared`),
-		})`pnpm install --frozen-lockfile`;
 		// No .env file
 	}
 
-	// Install backend
+	// Clone backend
 	if (backend) {
 		await $({ cwd: rootAppPath })`git clone ${backend} ${appId}-backend`;
 
@@ -51,14 +48,9 @@ export default defineEventHandler(async (event): Promise<void> => {
 		envContent = envContent.replace(/CORS_ENABLED=.*/g, "CORS_ENABLED=false");
 		envContent = envContent.replace(/CORS_ORIGIN=.*/g, "CORS_ORIGIN=");
 		await writeFile(envProductionPath, envContent, "utf-8");
-
-		// Install deps
-		await $({
-			cwd: join(rootAppPath, `${appId}-backend`),
-		})`pnpm install --frozen-lockfile`;
 	}
 
-	// Install frontend
+	// Clone frontend
 	if (frontend) {
 		await $({ cwd: rootAppPath })`git clone ${frontend} ${appId}-frontend`;
 
@@ -86,10 +78,5 @@ export default defineEventHandler(async (event): Promise<void> => {
 			"NUXT_PUBLIC_AUTH_API_BASE="
 		);
 		await writeFile(envProductionPath, envContent, "utf-8");
-
-		// Install deps
-		await $({
-			cwd: join(rootAppPath, `${appId}-frontend`),
-		})`pnpm install --frozen-lockfile`;
 	}
 });

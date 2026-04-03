@@ -92,6 +92,8 @@ import {
 	useRemoteAppInstall,
 	useJwtCreateMutation,
 	usePepperCreateMutation,
+	useProjectInitMutation,
+	useProjectInstallMutation,
 } from "~/mutations";
 import { useBuildMutation } from "~/containers/apps/mutations";
 
@@ -107,9 +109,11 @@ const output = useTemplateRef("output");
 const messages = ref<Message[]>([]);
 
 // Steps
+const { mutateAsync: initWorkspace } = useProjectInitMutation();
 const { mutateAsync: createAppsDir } = useFixAppsMutation();
 const { mutateAsync: cloneSharedDir } = useFixSharedMutation();
 const { mutateAsync: cloneEntryServerDir } = useFixEntryServerMutation();
+const { mutateAsync: installWorkspace } = useProjectInstallMutation();
 const { mutateAsync: buildSharedDir } = useSharedBuildMutation();
 const { mutateAsync: buildEntryServer } = useEntryServerBuildMutation();
 const { mutateAsync: configureEntryServer } = useEntryServerConfigMutation();
@@ -151,29 +155,26 @@ const handleOneClickSetup = async () => {
 
 	try {
 		/**
-		 * 1. Setup shared-* modules
+		 * 0. Initialize workspace files (pnpm-workspace.yaml, package.json)
 		 */
-		w("Setting up /shared directory...");
+		w("Initializing workspace files...");
+		await initWorkspace();
+		w("Workspace files created");
+
+		/**
+		 * 1. Clone shared-* modules
+		 */
+		w("\nCloning /shared modules...");
 		await cloneSharedDir();
 		w("/shared directory created")
 			.push("/shared-all repository cloned")
 			.push("/shared-backend repository cloned")
-			.push("/shared-frontend repository cloned")
-			.push("Dependencies installed for /shared-all repository")
-			.push("Dependencies installed for /shared-backend repository")
-			.push("Dependencies installed for /shared-frontend repository");
-		w("Building shared modules...");
-		await buildSharedDir("all");
-		w("/shared-all module built");
-		await buildSharedDir("frontend");
-		w("/shared-frontend module built");
-		await buildSharedDir("backend");
-		w("/shared-backend module built");
+			.push("/shared-frontend repository cloned");
 
 		/**
-		 * 2. Setup /apps directory
+		 * 2. Clone /apps
 		 */
-		w("\nSetting up /apps directory...");
+		w("\nCloning applications...");
 		await createAppsDir();
 		w("/apps directory created");
 		w("Getting the list of available applications...");
@@ -182,39 +183,66 @@ const handleOneClickSetup = async () => {
 		const appIds = appsArray.map(({ appId }) => appId).join(", ");
 		w(`Available applications fetched: ${appIds}`);
 		for (const remoteApp of appsArray) {
-			w(`Installing "${remoteApp.appId}"...`);
+			w(`Cloning "${remoteApp.appId}"...`);
 			await installApp(remoteApp);
 			w(`All parts for "${remoteApp.appId}" cloned`)
-				.push(`Dependencies installed for all parts of "${remoteApp.appId}"`)
 				.push(".env files created based on .env.example");
+		}
+
+		/**
+		 * 3. Clone /entry-server
+		 */
+		w("\nCloning /entry-server...");
+		await cloneEntryServerDir();
+		w("/entry-server repository cloned")
+			.push(".env files created based on .env.example");
+
+		/**
+		 * 4. Install all workspace dependencies from root
+		 */
+		w("\nInstalling workspace dependencies...");
+		await installWorkspace();
+		w("All dependencies installed");
+
+		/**
+		 * 5. Build shared modules
+		 */
+		w("\nBuilding shared modules...");
+		await buildSharedDir("all");
+		w("/shared-all module built");
+		await buildSharedDir("frontend");
+		w("/shared-frontend module built");
+		await buildSharedDir("backend");
+		w("/shared-backend module built");
+
+		/**
+		 * 6. Build applications
+		 */
+		w("\nBuilding applications...");
+		for (const remoteApp of appsArray) {
 			w(`Building "${remoteApp.appId}"...`);
 			await buildApp({ apps: [remoteApp.appId], part: "all" });
 			w(`"${remoteApp.appId}" built`);
 		}
 
 		/**
-		 * 3. Setup /entry-server directory
+		 * 7. Build /entry-server
 		 */
-		w("\nSetting up /entry-server directory...");
-		await cloneEntryServerDir();
-		w("/entry-server repository cloned")
-			.push(".env files created based on .env.example")
-			.push("Dependencies installed for /entry-server repository")
-			.push("Building entry server module...");
+		w("\nBuilding /entry-server...");
 		await configureEntryServer();
 		w("Applications configuration created in /entry-server");
 		await buildEntryServer();
 		w("/entry-server module built");
 
 		/**
-		 * 4. Create JWT keys, save them in each /[app]-backend and in /entry-server
+		 * 8. Create JWT keys, save them in each /[app]-backend and in /entry-server
 		 */
 		w("\nCreating JWT private and public keys...");
 		await createJwtKeys(appsArray.map(({ appId }) => appId));
 		w("JWT keys created and saved in appropriate directories");
 
 		/**
-		 * 5. Create pepper key, save it in /auth-backend and /entry-server
+		 * 9. Create pepper key, save it in /auth-backend and /entry-server
 		 */
 		w("\nCreating pepper key...");
 		await createPepperKey();

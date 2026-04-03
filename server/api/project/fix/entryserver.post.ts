@@ -44,8 +44,4 @@ export default defineEventHandler(async (): Promise<void> => {
 	);
 	await writeFile(envProductionPath, envContent, "utf-8");
 
-	// Install deps
-	await $({
-		cwd: join(rootPath, "entry-server"),
-	})`pnpm install --frozen-lockfile`;
 });
