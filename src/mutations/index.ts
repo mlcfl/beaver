@@ -1,4 +1,6 @@
 export * from "./useAppsInstallMutation";
+export * from "./usePostgresSetupMutation";
+export * from "./useMongoSetupMutation";
 export * from "./usePatchDnsMutation";
 export * from "./usePatchHostsMutation";
 export * from "./useProjectInitMutation";

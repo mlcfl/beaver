@@ -2,6 +2,8 @@
 	<VSheet>
 		<OneClickSetup class="mb-4" />
 
+		<DatabaseSetup class="mb-8" />
+
 		<VSheet class="mb-8 d-flex flex-column ga-2">
 			<VRow align="center" no-gutters>
 				<VBtn
@@ -169,7 +171,7 @@ import {
 	usePatchHostsMutation,
 	usePatchDnsMutation,
 } from "~/mutations";
-import { OneClickSetup } from "~/containers/project/components";
+import { OneClickSetup, DatabaseSetup } from "~/containers/project/components";
 
 const { data: structure, isSuccess: structureSuccess } =
 	useProjectStructureQuery();
