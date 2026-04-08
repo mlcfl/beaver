@@ -1,6 +1,54 @@
 <template>
 	<VSheet>
-		<OneClickSetup class="mb-8" />
+		<OneClickSetup class="mb-4" />
+
+		<VSheet class="mb-8 d-flex flex-column ga-2">
+			<VRow align="center" no-gutters>
+				<VBtn
+					variant="outlined"
+					size="small"
+					:loading="isPatchingHosts"
+					@click="patchHosts"
+					>Patch with hosts</VBtn
+				>
+				<VBtn
+					icon="mdi-information-outline"
+					variant="plain"
+					size="small"
+					class="ml-1 text-grey-darken-1"
+				>
+					<VIcon icon="mdi-information-outline" size="small" />
+					<VTooltip activator="parent" location="top" max-width="320px">
+						Writes <strong>mlc.local</strong> entries to the system hosts file
+						and updates env files. Requires write access to the hosts file — run
+						Beaver with administrator/sudo privileges. Works offline.
+					</VTooltip>
+				</VBtn>
+			</VRow>
+			<VRow align="center" no-gutters>
+				<VBtn
+					variant="outlined"
+					size="small"
+					:loading="isPatchingDns"
+					@click="patchDns"
+					>Patch with DNS</VBtn
+				>
+				<VBtn
+					icon="mdi-information-outline"
+					variant="plain"
+					size="small"
+					class="ml-1 text-grey-darken-1"
+				>
+					<VIcon icon="mdi-information-outline" size="small" />
+					<VTooltip activator="parent" location="top" max-width="320px">
+						Updates env files to use <strong>localhost.direct</strong> — a
+						public DNS service where *.localhost.direct resolves to 127.0.0.1.
+						No system modifications needed, but requires a working DNS resolver.
+					</VTooltip>
+				</VBtn>
+			</VRow>
+		</VSheet>
+
 		<h2>Environment</h2>
 		<VList v-if="envSuccess">
 			<VListItem title="Node.js installed" :subtitle="env?.node.value">
@@ -104,21 +152,52 @@
 			</VListItem>
 			<ErrorAlert :error="structure?.entryServerDir.error" />
 		</VList>
+
+		<VSnackbar v-model="snackbar.show" :color="snackbar.color" :timeout="4000">
+			{{ snackbar.text }}
+		</VSnackbar>
 	</VSheet>
 </template>
 
 <script lang="ts" setup>
+import { FetchError } from "ofetch";
 import { useProjectStructureQuery, useProjectEnvQuery } from "~/queries";
 import {
 	useFixAppsMutation,
 	useFixSharedMutation,
 	useFixEntryServerMutation,
+	usePatchHostsMutation,
+	usePatchDnsMutation,
 } from "~/mutations";
 import { OneClickSetup } from "~/containers/project/components";
 
 const { data: structure, isSuccess: structureSuccess } =
 	useProjectStructureQuery();
 const { data: env, isSuccess: envSuccess } = useProjectEnvQuery();
+
+// Snackbar
+const snackbar = reactive({
+	show: false,
+	text: "",
+	color: "success" as "success" | "error",
+});
+const showSnackbar = (text: string, color: "success" | "error") => {
+	snackbar.text = text;
+	snackbar.color = color;
+	snackbar.show = true;
+};
+
+const getErrorMessage = (e: unknown): string => {
+	if (e instanceof FetchError) {
+		return e.data?.statusMessage ?? e.message;
+	}
+
+	if (e instanceof Error) {
+		return e.message;
+	}
+
+	return String(e);
+};
 
 // Fix apps
 const { mutate: fixApps, isPending: isFixingApps } = useFixAppsMutation();
@@ -127,4 +206,25 @@ const { mutate: fixShared, isPending: isFixingShared } = useFixSharedMutation();
 // Fix entry server
 const { mutate: fixEntryServer, isPending: isFixingEntryServer } =
 	useFixEntryServerMutation();
+
+// Patch with hosts (mlc.local)
+const { mutate: patchHosts, isPending: isPatchingHosts } =
+	usePatchHostsMutation({
+		onSuccess: () =>
+			showSnackbar(
+				"Hosts file patched. Restart entry-server for changes to take effect.",
+				"success",
+			),
+		onError: (e) => showSnackbar(getErrorMessage(e), "error"),
+	});
+
+// Patch with DNS (localhost.direct)
+const { mutate: patchDns, isPending: isPatchingDns } = usePatchDnsMutation({
+	onSuccess: () =>
+		showSnackbar(
+			"Env files updated to use localhost.direct. Restart entry-server for changes to take effect.",
+			"success",
+		),
+	onError: (e) => showSnackbar(getErrorMessage(e), "error"),
+});
 </script>

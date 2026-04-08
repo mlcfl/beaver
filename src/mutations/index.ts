@@ -1,4 +1,6 @@
 export * from "./useAppsInstallMutation";
+export * from "./usePatchDnsMutation";
+export * from "./usePatchHostsMutation";
 export * from "./useProjectInitMutation";
 export * from "./useProjectInstallMutation";
 export * from "./useAppsLinkingMutation";
